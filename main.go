@@ -61,6 +61,7 @@ func main() {
 
 	r := gin.Default()
 	r.PUT("/", handlePutRequest)
+	r.GET("/health", healthCheck)
 	err = r.Run(":" + apiPort)
 
 	if err != nil {
@@ -117,4 +118,13 @@ func handlePutRequest(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Events synced successfully!"})
+}
+
+func healthCheck(c *gin.Context) {
+	err := client.Ping(context.TODO(), nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "MongoDB is down"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "API is up and running"})
 }
